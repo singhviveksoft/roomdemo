@@ -18,16 +18,14 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.userdemo.R
 import com.example.userdemo.`interface`.Api
 import com.example.userdemo.adapter.MovieAdapter
+
 import com.example.userdemo.databinding.ActivityMainBinding
 import com.example.userdemo.db.MovieDataBase
 import com.example.userdemo.db.MovieModel
 import com.example.userdemo.repository.UserRepository
 import com.example.userdemo.viewmodel.MovieViewModel
 import com.example.userdemo.viewmodelfactory.MovieViewModelFactory
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 
 class MainActivity : AppCompatActivity(),MovieAdapter.itemClick{
     lateinit var binding:ActivityMainBinding
@@ -36,6 +34,7 @@ class MainActivity : AppCompatActivity(),MovieAdapter.itemClick{
     lateinit var adapter: MovieAdapter
     var list= emptyList<MovieModel>()
 
+    var exists:Boolean=false
 
     val retrofit=Api.getInstance()
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -50,29 +49,62 @@ class MainActivity : AppCompatActivity(),MovieAdapter.itemClick{
         binding.movieRecyclerView.adapter = adapter
 
         //   adapter= MovieAdapter(list)
+    //    observeData()
 
 
         if (checkInternet()) {
+
+            exists=   viewModel.checkDatabase()
+
+
+            if (exists){
+                observeData()
+        } else {
             viewModel.getAllMovieList()
+                observeData()
+        }
 
     }
+/*
+            CoroutineScope(Dispatchers.IO).launch {
+                val exists=viewModel.getAllMovieDataBase
+                withContext(Dispatchers.Main){
+                    if (exists) {
+                        observeData()
+                    }
+                    else {
+                        viewModel.getAllMovieList()
+                        observeData()
+                    }
+                }
+            }
+*/
+
         else{
+            observeData()
+
             binding.progressBar.visibility=View.VISIBLE
         }
 
-        viewModel.getMovies().observe(this, Observer {
-        if (!it.isNullOrEmpty()){
-            adapter.addAll(it)
-            binding.progressBar.visibility=View.INVISIBLE
-
-        }
-
-        })
-        checkInternet()
+      //  checkInternet()
 //        CoroutineScope(Dispatchers.IO).launch {
 //        }
 
     }
+
+     fun observeData(){
+         viewModel.getMovies().observe(this, Observer {
+             if (!it.isNullOrEmpty()) {
+              //   exists=true
+                 adapter.addAll(it)
+                 binding.progressBar.visibility = View.INVISIBLE
+
+             }
+
+         })
+     }
+
+
     fun checkInternet():Boolean{
         val cm = this.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val activeNetwork: NetworkInfo? = cm.activeNetworkInfo
@@ -80,11 +112,16 @@ class MainActivity : AppCompatActivity(),MovieAdapter.itemClick{
         return isConnected
     }
 
+
     override fun onClick(movieModel: MovieModel) {
         val intent=Intent(this,MovieDetailActivity::class.java)
         intent.putExtra(MovieDetailActivity.move,movieModel)
         startActivity(intent)
     }
 
+     override fun onLongClick(movieModel: MovieModel) {
+         Toast.makeText(this,"movie name: ${movieModel.name}",Toast.LENGTH_LONG).show()
+     }
 
-}
+
+ }
