@@ -9,9 +9,10 @@ import java.io.Serializable
 
 @Entity
 data class MovieModel(
-    @PrimaryKey(autoGenerate = true)
+
     val id:Int,
     val imageUrl: String,
+    @PrimaryKey
     val name: String,
     val category: String,
     val desc: String):Serializable

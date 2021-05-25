@@ -16,7 +16,8 @@ class UserRepository(val api: Api,val db: MovieDataBase) {
     fun getAllMovie():LiveData<List<MovieModel>>{
       return  db.movieDao.getAllMovies()
     }
-fun hasitem():Boolean{
+
+    fun hasitem():Boolean{
     return db.movieDao.hasItem()
 }
 }

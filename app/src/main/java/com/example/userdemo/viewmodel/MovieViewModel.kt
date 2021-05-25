@@ -10,64 +10,65 @@ import com.example.userdemo.db.MovieModel
 import com.example.userdemo.repository.UserRepository
 import kotlinx.coroutines.*
 
-class MovieViewModel(val userRepository: UserRepository): ViewModel() {
+class MovieViewModel(val userRepository: UserRepository) : ViewModel() {
 
-    var movie=MutableLiveData<List<MovieModel>>()
+    var movie = MutableLiveData<List<MovieModel>>()
+    var result: List<MovieModel>? = null
 
-//    val movieName:LiveData<MovieModel>
-//    get() = us
+    var getAllMovieDataBase: Boolean = false
 
-    var getAllMovieDataBase:Boolean= false
-//init {
-//    getAllMovieList()
-//}
-    fun getAllMovieList(){
+    val coroutineExpection = CoroutineExceptionHandler { coroutineContext, throwable ->
+        println("Caught $throwable")
+    }
+
+    fun getAllMovieListApi() {
         viewModelScope.launch {
-          //  Log.i("MyViewModelThread","Thread name ${Thread.currentThread().name}")
 
-            var result:List<MovieModel>?=null
 
             withContext(Dispatchers.IO) {
-
                 userRepository.deleteMovie()
+                supervisorScope {
+                    Log.i("supervisorScope ", "${Thread.currentThread().name}")
 
-                    result = userRepository.getMovieRespr()
-
-                    if (!result.isNullOrEmpty()) {
-                        //  //
-                      //  userRepository.deleteMovie()
-
-                        userRepository.insertMovie(result!!)
-                        userRepository.updateMovie(result!!)
-                      //  getAllMovieDataBase=   userRepository.hasitem()
+                    launch(coroutineExpection) {
+                        Log.i("before launch", "${Thread.currentThread().name}")
+                        result = userRepository.getMovieRespr()
+                        Log.i("after launch", "${Thread.currentThread().name}")
 
                     }
+                }
+                if (!result.isNullOrEmpty()) {
+
+
+                    userRepository.insertMovie(result!!)
+
+                    Log.i("insert ", "${Thread.currentThread().name}")
 
                 }
-            }
 
-//            db.movieDao.insertMovie(result[0])
-//         var output=  db.movieDao.getAllMovies()
-//            movie.value=output
-//          //  movie.value=result
+            }
         }
 
 
-
-
-    fun getMovies():LiveData<List<MovieModel>>{
-
-        return  userRepository.getAllMovie()
     }
 
- fun checkDatabase():Boolean{
-    CoroutineScope(Dispatchers.IO).launch {
-        getAllMovieDataBase=  userRepository.hasitem()
+
+    fun getMovieItem(): List<MovieModel>? {
+        return result
     }
-     return getAllMovieDataBase
+
+    fun getMovies(): LiveData<List<MovieModel>> {
+
+        return userRepository.getAllMovie()
+    }
+
+    fun checkDatabase(): Boolean {
+        CoroutineScope(Dispatchers.IO).launch {
+            getAllMovieDataBase = userRepository.hasitem()
+        }
+        return getAllMovieDataBase
+    }
+
+
 }
-
-
-
-    }
 

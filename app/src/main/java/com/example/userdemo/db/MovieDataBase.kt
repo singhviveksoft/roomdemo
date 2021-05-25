@@ -18,21 +18,19 @@ abstract class MovieDataBase:RoomDatabase() {
 
         fun getInstance(context: Context): MovieDataBase {
             synchronized(this) {
-               var instance = INSTANCE
+                var instance = INSTANCE
 
                 if (instance == null) {
                     instance = Room.databaseBuilder(
-                        context.applicationContext,
-                        MovieDataBase::class.java,
-                        "movie_database")
-                        .build()
+                            context.applicationContext,
+                            MovieDataBase::class.java,
+                            "movie_database")
+                            .build()
                     INSTANCE = instance
                 }
                 return instance
             }
         }
-fun cleanUp()
-{INSTANCE=null}
     }
 
 }

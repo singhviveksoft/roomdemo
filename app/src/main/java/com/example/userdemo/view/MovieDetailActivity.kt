@@ -8,16 +8,17 @@ import com.example.userdemo.databinding.ActivityMovieDetailBinding
 import com.example.userdemo.db.MovieModel
 
 class MovieDetailActivity : AppCompatActivity() {
-    companion object{
-        val move="moveItem"
+    companion object {
+        val move = "moveItem"
     }
-  private  lateinit var binding:ActivityMovieDetailBinding
+
+    private lateinit var binding: ActivityMovieDetailBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding=DataBindingUtil.setContentView(this,R.layout.activity_movie_detail)
-        val moveItem=intent.getSerializableExtra(move) as MovieModel
-        binding.model=moveItem
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_movie_detail)
+        val moveItem = intent.getSerializableExtra(move) as MovieModel
+        binding.model = moveItem
 
     }
 
